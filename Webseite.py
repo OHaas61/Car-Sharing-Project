@@ -2,13 +2,13 @@
 # Datahandling libraries
 import pandas as pd
 import streamlit as st
-import folium
+import folium as fl
 import itertools
 
 
 # ML libraries -> DBSCAN
 from sklearn.cluster import DBSCAN
-from streamlit_folium import st_folium, folium_static
+from streamlit_folium import st_folium
 
 
 # we now have a smaller data frame with the pickup-longitude aswell as the pickup-latitude
@@ -103,17 +103,17 @@ print(num_clusters)
 colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'lightgray']
 color_iterator = itertools.cycle(colors)
 
-m = folium.Map()
+m = fl.Map()
 m.fit_bounds([(40.893895, -74.045570),(40.588878, -73.679881)])
 for i in range(num_clusters-1):
     longitudestring = "pickup_longitude_cluster_" + str(i+1)  # create string with current number
     latitudestring = "pickup_latitude_cluster_" + str(i+1)  # create string with current number
     color = next(color_iterator)  # get the next color in the sequence
     for _, row in clusters_list[i].head(20).iterrows():
-        folium.Marker(location=[row[latitudestring], row[longitudestring]], icon=folium.Icon(color=color)).add_to(m)
+        fl.Marker(location=[row[latitudestring], row[longitudestring]], icon=folium.Icon(color=color)).add_to(m)
 for i,row in clusters_list[num_clusters].head(20).iterrows():
     # add each row to the map
-    folium.Marker(location=[row['pickup_latitude_noise'],row['pickup_longitude_noise']],icon=folium.Icon(color='black')).add_to(m)                             
+    fl.Marker(location=[row['pickup_latitude_noise'],row['pickup_longitude_noise']],icon=folium.Icon(color='black')).add_to(m)                             
 
 # determines how big the map will be
 st_folium(
