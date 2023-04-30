@@ -193,7 +193,7 @@ for x in range(24):
     df2 = hourly_dataframes[x]
     del df2['pickup_time']
     # running the algorithm
-    clusters = DBSCAN(eps = 0.005, min_samples = 50).fit(df2)
+    clusters = DBSCAN(eps = 0.004, min_samples = 20).fit(df2)
     # storing the cluster-labels in a variable "labels"
     labels = clusters.labels_
     # storing the number of clusters in a variable by creating a new set of labels and subtracting 1
@@ -242,10 +242,10 @@ for i in range(len(clustered_hourly_dataframes[hour-1])-1):
     longitudestring = f'hour_{hour}_pickup_longitude_cluster_{i+1}'  # create string with current number
     latitudestring = f'hour_{hour}_pickup_latitude_cluster_{i+1}'  # create string with current number
     color = next(color_iterator)  # get the next color in the sequence
-    for _, row in clustered_hourly_dataframes[hour-1][i].head(5).iterrows():
+    for _, row in clustered_hourly_dataframes[hour-1][i].head(20).iterrows():
         if latitudestring in row:
             folium.Marker(location=[row[latitudestring], row[longitudestring]], icon=folium.Icon(color=color)).add_to(m)  
-    for i,row in clustered_hourly_dataframes[hour-1][-1].head(5).iterrows():
+    for i,row in clustered_hourly_dataframes[hour-1][-1].head(20).iterrows():
         # add each row to the map
         folium.Marker(location=[row['hour_' + str(hour-1) + '_pickup_latitude_noise'],row['hour_' + str(hour-1) + '_pickup_longitude_noise']],icon=folium.Icon(color='black')).add_to(m)                             
 
