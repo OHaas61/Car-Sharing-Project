@@ -24,6 +24,7 @@ executing
 fastjsonschema
 filelock
 Flask
+streamlit_folium
 folium
 fonttools
 gitdb
