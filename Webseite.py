@@ -149,22 +149,34 @@ with col2:
    st.image('pictures/visualizing clustering process/10.png',width = 350)
 
 
+# Load the Uber dataset
+df2 = pd.read_csv('data/uber.csv')
 
-df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'])
-df['pickup_time'] = df['pickup_datetime'].dt.time
-del df['pickup_datetime']
+# Remove unnecessary columns
+del df2['Unnamed: 0'] 
+del df2['key']
+del df2['fare_amount']
+del df2['dropoff_latitude']
+del df2['dropoff_longitude']
+del df2['passenger_count']
+
+# Convert pickup datetime to datetime format and extract pickup time
+df2['pickup_datetime'] = pd.to_datetime(df2['pickup_datetime'])
+df2['pickup_time'] = df2['pickup_datetime'].dt.time
+del df2['pickup_datetime']
 
 # Select a subset of the data to speed up processing
+df2_small = df2[:50000]
 
 # Remove rows with invalid pickup location
-df_small = df_small[(df_small['pickup_latitude'] != 0) | (df_small['pickup_longitude'] != 0)]
+df2_small = df2_small[(df2_small['pickup_latitude'] != 0) | (df2_small['pickup_longitude'] != 0)]
 
 # Split the data into hourly dataframes
 hourly_dataframes = []
 for i in range(24):
     hour_start = pd.Timestamp(f'{i:02d}:00:00').time()
     hour_end = pd.Timestamp(f'{i:02d}:59:59').time()
-    df_hour_i = df_small[(df_small['pickup_time'] >= hour_start) & (df_small['pickup_time'] <= hour_end)]
+    df_hour_i = df2_small[(df2_small['pickup_time'] >= hour_start) & (df2_small['pickup_time'] <= hour_end)]
     hourly_dataframes.append(df_hour_i)
 
 # creating 24 empty lists within a list
@@ -178,10 +190,10 @@ clustered_hourly_dataframes = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[
 # applying the DBSCAN-algorithm on these 24 dataframes
 for x in range(24):
     # looping over all of the 24 dataframes
-    df = hourly_dataframes[x]
-    del df['pickup_time']
+    df2 = hourly_dataframes[x]
+    del df2['pickup_time']
     # running the algorithm
-    clusters = DBSCAN(eps = 0.005, min_samples = 100).fit(df)
+    clusters = DBSCAN(eps = 0.005, min_samples = 100).fit(df2)
     # storing the cluster-labels in a variable "labels"
     labels = clusters.labels_
     # storing the number of clusters in a variable by creating a new set of labels and subtracting 1
@@ -192,7 +204,7 @@ for x in range(24):
     for i in range(num_clusters):
 
         # select all the points that are in cluster i
-        cluster_data = df[labels == i]
+        cluster_data = df2[labels == i]
         
 
         # with an f-string, each iteration cluster_name changes so that the for-iteration returns
@@ -206,7 +218,7 @@ for x in range(24):
         clustered_hourly_dataframes[x].append(cluster_data)
     
     # get the noise points for the corresponding clusters
-    noise_points = df[labels == -1]
+    noise_points = df2[labels == -1]
     noise_points.columns = [f'hour_{x}_{col}_noise' for col in noise_points.columns]
     
     # add the noise points to the list
@@ -230,7 +242,7 @@ for i in range(len(clustered_hourly_dataframes[hour-1])-1):
     longitudestring = f'hour_{hour}_pickup_longitude_cluster_{i+1}'  # create string with current number
     latitudestring = f'hour_{hour}_pickup_latitude_cluster_{i+1}'  # create string with current number
     color = next(color_iterator)  # get the next color in the sequence
-    for _, row in clustered_hourly_dataframes[hour][i].head(20).iterrows():
+    for _, row in clustered_hourly_dataframes[hour-1][i].head(20).iterrows():
         if latitudestring in row:
             folium.Marker(location=[row[latitudestring], row[longitudestring]], icon=folium.Icon(color=color)).add_to(m)  
     for i,row in clustered_hourly_dataframes[hour-1][-1].head(20).iterrows():
@@ -241,4 +253,4 @@ st_folium(
     m,
     height=400,
     width=700,
-)   
+)
