@@ -239,8 +239,8 @@ hour = st.slider("hours",1,24,1,1)
 # Add markers for each cluster and noise point
 
 for i in range(len(clustered_hourly_dataframes[hour-1])-1):
-    longitudestring = f'hour_{hour}_pickup_longitude_cluster_{i+1}'  # create string with current number
-    latitudestring = f'hour_{hour}_pickup_latitude_cluster_{i+1}'  # create string with current number
+    longitudestring = f'hour_{hour-1}_pickup_longitude_cluster_{i+1}'  # create string with current number
+    latitudestring = f'hour_{hour-1}_pickup_latitude_cluster_{i+1}'  # create string with current number
     color = next(color_iterator)  # get the next color in the sequence
     for _, row in clustered_hourly_dataframes[hour-1][i].head(20).iterrows():
         if latitudestring in row:
