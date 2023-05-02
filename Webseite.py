@@ -1,19 +1,21 @@
+############################## Imports ##############################
 
-# Datahandling libraries
+# Datahandling
 import pandas as pd
+# Math
+import numpy as np
+from sklearn.cluster import DBSCAN
+# Website
 import streamlit as st
 import folium
 import itertools
-import numpy as np
+from streamlit_folium import st_folium
+# Visualization
 import seaborn as sns
 import matplotlib.pyplot as plt 
 
-# ML libraries -> DBSCAN
-from sklearn.cluster import DBSCAN
-from streamlit_folium import st_folium
 
-
-############################## Title, Introduction, Theory ###########################
+############################## Title, Introduction, Theory ##############################
 
 # adding a Titel to the website
 st.title('Wie funktioniert der Spatial Clustering Algorithmus DBSCAN')
@@ -107,7 +109,7 @@ del df_small['pickup_datetime']
 df_small = df_small[(df_small['pickup_latitude'] != 0) | (df_small['pickup_longitude'] != 0)]
 
 # creating the output of the DBSCAN algorithm
-clusters = DBSCAN(eps = st.slider("Epsilon",0.0020,0.0100,0.0093,0.0001,format="%f"), min_samples = st.slider("min_samples",10,200,100)).fit(df_small)
+clusters = DBSCAN(eps = st.slider("Epsilon",0.0020,0.0200,0.0093,0.0001,format="%f"), min_samples = st.slider("min_samples",10,200,100)).fit(df_small)
 
 # creating an empty list that stores every new cluster dataframe
 clusters_list = []
