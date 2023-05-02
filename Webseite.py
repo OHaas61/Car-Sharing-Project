@@ -243,7 +243,7 @@ for x in range(24):
     df2 = hourly_dataframes[x]
     del df2['pickup_time']
     # running the algorithm
-    clusters = DBSCAN(eps = 0.04, min_samples = 20).fit(df2)
+    clusters = DBSCAN(eps = 0.01, min_samples = 20).fit(df2)
     # storing the cluster-labels in a variable "labels"
     labels = clusters.labels_
     # storing the number of clusters in a variable by creating a new set of labels and subtracting 1
