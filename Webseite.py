@@ -167,10 +167,10 @@ st_folium(
 col1, col2, col3 = st.columns(3)
 with col1:
     # input for epsilon
-    epsilon = st.number_input('Geben Sie ein Epsilon für den DBSCAN-Algorithmus an!',min_value=0.01, max_value=1.00, value=0.01)
+    epsilon = st.number_input('Geben Sie ein Epsilon für den DBSCAN-Algorithmus an!',min_value=0.01, max_value=1.00, value=0.05)
 with col2:
     # input for min_samples
-    min_samples = st.number_input('Wie viele Punkte soll ein Cluster mindestens enthalten?', min_value=1, max_value=100, value=1)
+    min_samples = st.number_input('Wie viele Punkte soll ein Cluster mindestens enthalten?', min_value=1, max_value=100, value=5)
 with col3:
     # calculation button to execute the calculation with the two previous inputs
     calculate_button = st.button('Calculate')
