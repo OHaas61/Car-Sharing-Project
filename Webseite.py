@@ -16,7 +16,9 @@ from streamlit_folium import st_folium
 ############################## Title, Introduction, Theory ###########################
 
 # adding a Titel to the website
-st.title('Spatial Clustering mit DBSCAN')
+st.title('Wie funktioniert der Spatial Clustering Algorithmus DBSCAN')
+st.header('Theorie und interaktive Anwendungsbeispiele')
+
 # adding a Title for the first "chapter"
 st.header('Zusammenfassung der Webseite')
 'Diese Website soll den räumlichen Clustering-Algorithmus DBSCAN etwas nachvollziehbarer machen. Die Theorie beginnt allerdings nicht bei null, sondern geht von einem bestimmten Vorwissen in Sachen Algorithmen, Machine Learning und Datensätzen aus. Als Datengrundlage für das Clustering dient ein Datensatz der Firma «Uber». In diesem Datensatz sind jeweils Längen- und Breitengrad der Abholstellen von Uberkunden – hauptsächlich in New York – enthalten'
@@ -25,13 +27,16 @@ st.header('Zusammenfassung der Webseite')
 '-  Im Ergebnisteil werden die Ergebnisse des DBSCAN-Algorithmus visualisiert (welche Gruppen wurden aufgrund des Datensatzes gebildet?). Diese Ergebnisse werden auf einer interaktiven Karte zusammengefasst, um so nachvollziehbar zu machen, wie der DBSCAN-Algorithmus funktioniert.'
 
 st.header('Was macht der DBSCAN-Algorithmus?')
+
 #adding a subtitle
 st.subheader('Allgemeine Informationen')
 '-  Ein Clustering Algorithmus ist eine Form von unsupervised machine learning, bei der ähnliche Datenpunkte in einem Datenset mit einem Algorithmus zusammengefasst werden. Dabei ist das Ziel, dass sich die Datenpunkte innerhalb eines Clusters sehr ähnlich sind. Die Unterschiede von Datenpunkten aus verschiedenen Clustern sollten wiederum sehr gross sein.'
 '-  DBSCAN steht für Density-Based Spatial Clustering of Applications with Noise (Deutsch: Dichtebasierte räumliche Clusteranalyse mit Rauschen)'
 '-  Der DBSCAN-Algorithmus ist ein sogenannter räumlicher Clustering Algorithmus. Das bedeutet die Ähnlichkeit von Datenpunkten wird basierend auf ihrer räumlichen Nähe zueinander ermittelt. Diese Datenpunkte werden dann zu Clustern (Gruppen) zusammengefasst (Abbildung 1).'
+
 # adding an image
 st.image('pictures/theory pictures/Abbildung1.png')
+
 # adding an image caption
 st.caption('Abbildung 1')
 st.subheader('Vorgehensweise des DBSCAN-Algorithmus')
@@ -48,8 +53,10 @@ st.caption('Abbildung 2: Datenpunkte (schwarz, links) auf welche der DBSCAN-Algo
 'Etwas nachvollziehbarer wird der DBSCAN-Algoritmus, wenn man sich Schritt für Schritt anschaut, wie der Algorithmus vorgeht.'
 st.title('Veranschaulichung des DBSCAN-Algorithmus')
 
+# creates two columns to enable showing ten pictures in two columns and 5 rows. 
 col1, col2 = st.columns(2,gap="large")
 
+# initializes all the pictures in the first column (left)
 with col1:
    st.header("adding points")
    st.image('pictures/visualizing clustering process/1.png',width = 380)
@@ -63,6 +70,7 @@ with col1:
    st.image('pictures/visualizing clustering process/9.png',width = 350)
    st.caption('9')
 
+# initializes all the pictures in the second column (right)
 with col2:
    st.header("clustering")
    st.image('pictures/visualizing clustering process/2.png',width = 350)
@@ -76,7 +84,7 @@ with col2:
    st.image('pictures/visualizing clustering process/10.png',width = 350)
    st.caption('10')
 
-st.header('Ergebnisse')
+st.header('Ergebnisse-/Anwendungsteil')
 
 #################################### Clustering without TimeDimension with UberData ###################################
 
@@ -87,7 +95,6 @@ df = pd.read_csv('data/uber.csv')
 del df['Unnamed: 0'] 
 del df['key']
 del df['fare_amount']
-
 del df['dropoff_latitude']
 del df['dropoff_longitude']
 del df['passenger_count']
@@ -95,6 +102,7 @@ del df['passenger_count']
 # defining a smaller Dataset for less computational effort
 df_small = df[:20000]
 del df_small['pickup_datetime']
+
 # deleting points with latitude or longitude zero (we only want the points in New York)
 df_small = df_small[(df_small['pickup_latitude'] != 0) | (df_small['pickup_longitude'] != 0)]
 
@@ -113,6 +121,7 @@ num_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 
 # iterate over each cluster
 for i in range(num_clusters):
+
     # select all the points that are in cluster i
     cluster_data = df_small[labels == i]
 
@@ -134,23 +143,29 @@ clusters_list.append(noise)
 
 print(num_clusters)
 
-
+# list of all colors a marker could possibly have
 colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'lightgray']
+
+# function that iterates through that list
+# makes it possible to iterate through colors and an other parameter simultaneously 
 color_iterator = itertools.cycle(colors)
 
 m = folium.Map()
+
+# this way the map always shows New York when you start the website. 
 m.fit_bounds([(40.893895, -74.045570),(40.588878, -73.679881)])
 for i in range(num_clusters-1):
-    longitudestring = "pickup_longitude_cluster_" + str(i+1)  # create string with current number
-    latitudestring = "pickup_latitude_cluster_" + str(i+1)  # create string with current number
+    longitudestring = "pickup_longitude_cluster_" + str(i+1)  # create correct string for each cluster
+    latitudestring = "pickup_latitude_cluster_" + str(i+1)  
     color = next(color_iterator)  # get the next color in the sequence
-    for _, row in clusters_list[i].head(20).iterrows():
+    for _, row in clusters_list[i].head(20).iterrows(): # iterate thorugh the first 20 points in the current cluster
+        # add markers to the map
         folium.Marker(location=[row[latitudestring], row[longitudestring]], icon=folium.Icon(color=color)).add_to(m)
 for i,row in clusters_list[num_clusters].head(20).iterrows():
     # add each row to the map
     folium.Marker(location=[row['pickup_latitude_noise'],row['pickup_longitude_noise']],icon=folium.Icon(color='black')).add_to(m)                             
 
-# determines how big the map will be
+# determine how big the map will be
 st_folium(
     m,
     height=400,
@@ -199,10 +214,11 @@ if calculate_button:
 
 #################################### Clustering with TimeDimension with UberData ###################################
 st.header('Hinzufügen einer zeitlichen Dimension')
+
 # Load the Uber dataset
 df2 = pd.read_csv('data/uber.csv')
 
-# Remove unnecessary columns
+# Remove unnecessary columns, but keep the timedimension 
 del df2['Unnamed: 0'] 
 del df2['key']
 del df2['fare_amount']
@@ -254,8 +270,7 @@ for x in range(24):
     for i in range(num_clusters):
 
         # select all the points that are in cluster i
-        cluster_data = df2[labels == i]
-        
+        cluster_data = df2[labels == i]        
 
         # with an f-string, each iteration cluster_name changes so that the for-iteration returns
         # each cluster in a new dataframe named cluster_1, cluster_2 and so on
@@ -280,14 +295,15 @@ colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'be
 color_iterator = itertools.cycle(colors)
 
 m = folium.Map()
-# Make the map always show New York
+
+# make the map always show New York
 m.fit_bounds([(40.893895, -74.045570),(40.588878, -73.679881)])
 
-# Allow the user to select the hour to display
+# allow the user to select the hour to display
 hour = st.slider("hours",1,24,1,1)
 
-# Add markers for each cluster and noise point
-
+# add markers for each cluster and noise point
+# iterate through all the clusters existing in the chosen hour
 for i in range(len(clustered_hourly_dataframes[hour-1])-1):
     longitudestring = f'hour_{hour-1}_pickup_longitude_cluster_{i+1}'  # create string with current number
     latitudestring = f'hour_{hour-1}_pickup_latitude_cluster_{i+1}'  # create string with current number
