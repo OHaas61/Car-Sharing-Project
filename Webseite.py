@@ -84,7 +84,7 @@ with col2:
    st.image('pictures/visualizing clustering process/10.png',width = 350)
    st.caption('10')
 
-st.header('Ergebnisse-/Anwendungsteil')
+st.header('Ergebniss-/Anwendungsteil')
 
 #################################### Clustering without TimeDimension with UberData ###################################
 
