@@ -304,4 +304,5 @@ st_folium(
     height=400,
     width=700,
 )
+st.caption('epsilon = 0.1 min_samples = 20'  )
 'Neben den Clusterergebnissen auf der 2D-Karte gibt es hier noch eine weitere Dimension, aufgrund welcher geclustert wird. Mit dem Schieberegler oberhalb der Karte kann eine der 24 Stunden aller Tage, die in diesem Datenset sind, ausgewählt werden und darauf basierend wird dann wieder neu geclustert. Das heisst, die Cluster entstehen nicht mehr nur aufgrund der räumlichen Nähe, sondern auch aufgrund der zeitlichen Nähe (gleiche Stunde) der Punkte. Man erkennt z.B. dass um ein Uhr nachts am Flughafen von New York kein Cluster gebildet wurde. Um 17 Uhr dafür schon, weil dann mehr Leute am Flughafen ankommen und einen Uber brauchen. '
