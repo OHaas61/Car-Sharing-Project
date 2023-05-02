@@ -243,7 +243,7 @@ for x in range(24):
     df2 = hourly_dataframes[x]
     del df2['pickup_time']
     # running the algorithm
-    clusters = DBSCAN(eps = 0.01, min_samples = 20).fit(df2)
+    clusters = DBSCAN(eps = 0.005, min_samples = 20).fit(df2)
     # storing the cluster-labels in a variable "labels"
     labels = clusters.labels_
     # storing the number of clusters in a variable by creating a new set of labels and subtracting 1
@@ -304,5 +304,5 @@ st_folium(
     height=400,
     width=700,
 )
-st.caption('epsilon = 0.1 min_samples = 20'  )
+st.caption('Diese Cluster basieren auf epsilon = 0.05 und min_samples = 20'  )
 'Neben den Clusterergebnissen auf der 2D-Karte gibt es hier noch eine weitere Dimension, aufgrund welcher geclustert wird. Mit dem Schieberegler oberhalb der Karte kann eine der 24 Stunden aller Tage, die in diesem Datenset sind, ausgewählt werden und darauf basierend wird dann wieder neu geclustert. Das heisst, die Cluster entstehen nicht mehr nur aufgrund der räumlichen Nähe, sondern auch aufgrund der zeitlichen Nähe (gleiche Stunde) der Punkte. Man erkennt z.B. dass um ein Uhr nachts am Flughafen von New York kein Cluster gebildet wurde. Um 17 Uhr dafür schon, weil dann mehr Leute am Flughafen ankommen und einen Uber brauchen. '
