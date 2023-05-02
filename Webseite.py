@@ -4,31 +4,32 @@ import pandas as pd
 import streamlit as st
 import folium
 import itertools
-
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt 
 
 # ML libraries -> DBSCAN
 from sklearn.cluster import DBSCAN
 from streamlit_folium import st_folium
 
 
-# we now have a smaller data frame with the pickup-longitude aswell as the pickup-latitude
-# because we don't need the other columns
-# Website
+############################## Title, Introduction, Theory ###########################
+
 # adding a Titel to the website
 st.title('Spatial Clustering mit DBSCAN')
 # adding a Title for the first "chapter"
 st.header('Zusammenfassung der Webseite')
-'Diese Website soll den räumlichen Clustering-Algorithmus DBSCAN etwas nachvollziehbarer machen. Die Theorie beginnt allerdings nicht bei null sondern geht von einem bestimmten Vorwissen in Sachen Algorithmen, Machine Learning und Datensätzen aus. Als Datengrundlage für das Clustering dient ein Datensatz der Firma «Uber». In diesem Datensatz ist jeweils Längen- und Breitengrad der Abholstellen von Uberkunden – hauptsächlich in New York – enthalten'
+'Diese Website soll den räumlichen Clustering-Algorithmus DBSCAN etwas nachvollziehbarer machen. Die Theorie beginnt allerdings nicht bei null, sondern geht von einem bestimmten Vorwissen in Sachen Algorithmen, Machine Learning und Datensätzen aus. Als Datengrundlage für das Clustering dient ein Datensatz der Firma «Uber». In diesem Datensatz sind jeweils Längen- und Breitengrad der Abholstellen von Uberkunden – hauptsächlich in New York – enthalten'
 'Die Website ist in zwei Teile geteilt: Ein Theorieteil und ein Ergebnisteil:'
-'-  Im Theorieteil werden Grundinformation über den DBSCAN-Algorithmus geliefert und erklärt wie der DBSCAN-Algorithmus beim Clustern (zusammenfassen von Datenpunkten) vorgeht.'
+'-  Im Theorieteil werden Grundinformation über den DBSCAN-Algorithmus geliefert und es wird erklärt wie der DBSCAN-Algorithmus beim Clustern (dem Zusammenfassen von Datenpunkten) vorgeht.'
 '-  Im Ergebnisteil werden die Ergebnisse des DBSCAN-Algorithmus visualisiert (welche Gruppen wurden aufgrund des Datensatzes gebildet?). Diese Ergebnisse werden auf einer interaktiven Karte zusammengefasst, um so nachvollziehbar zu machen, wie der DBSCAN-Algorithmus funktioniert.'
 
 st.header('Was macht der DBSCAN-Algorithmus?')
 #adding a subtitle
 st.subheader('Allgemeine Informationen')
-'-  Ein Clustering Algorithmus ist eine Form von unsupervised machine learning, bei dem ähnliche Datenpunkte in einem Datenset mit einem Algorithmus zusammengefasst werden. Dabei ist das Ziel, dass sich die Datenpunkte innerhalb eines Clusters sehr ähnlich sind. Die Unterschiede von Datenpunkten aus verschiedenen Clustern sollten wiederum sehr gross sein.'
+'-  Ein Clustering Algorithmus ist eine Form von unsupervised machine learning, bei der ähnliche Datenpunkte in einem Datenset mit einem Algorithmus zusammengefasst werden. Dabei ist das Ziel, dass sich die Datenpunkte innerhalb eines Clusters sehr ähnlich sind. Die Unterschiede von Datenpunkten aus verschiedenen Clustern sollten wiederum sehr gross sein.'
 '-  DBSCAN steht für Density-Based Spatial Clustering of Applications with Noise (Deutsch: Dichtebasierte räumliche Clusteranalyse mit Rauschen)'
-'-  Der DBSCAN-Algorithmus ist ein also sogenannter räumlicher Clustering Algorithmus. Das bedeutet die Ähnlichkeit von Datenpunkten wird basierend auf ihrer räumlichen Nähe zueinander ermittelt. Diese Datenpunkte werden dann zu Clustern (Gruppen) zusammengefasst (Abbildung 1).'
+'-  Der DBSCAN-Algorithmus ist ein sogenannter räumlicher Clustering Algorithmus. Das bedeutet die Ähnlichkeit von Datenpunkten wird basierend auf ihrer räumlichen Nähe zueinander ermittelt. Diese Datenpunkte werden dann zu Clustern (Gruppen) zusammengefasst (Abbildung 1).'
 # adding an image
 st.image('pictures/theory pictures/Abbildung1.png')
 # adding an image caption
@@ -38,13 +39,47 @@ st.subheader('Vorgehensweise des DBSCAN-Algorithmus')
 '-  Kernobjekte --> Datenpunkte die zu einem Cluster gehören'
 '-  Noise --> Datenpunkte die keinem Cluster zugeordnet werden können'
 'Der DBSCAN-Algorithmus hat mehrere Parameter, die zwei wichtigsten sind jedoch:'
-'-  Epsilon --> Dieser Parameter legt den maximalen Abstand fest, die zwei Punkte voneinander haben dürfen, damit sie als verbundene Punkte gelten'
+'-  Epsilon --> Dieser Parameter legt den maximalen Abstand fest, den zwei Punkte voneinander haben dürfen, damit sie als verbundene Punkte gelten'
 '-  min_samples --> Dieser Parameter legt ein Minimum an verbundenen Punkten fest, die ein Cluster enthalten muss'
 '1.	Der DBSCAN-Algorithmus beginnt nun an einem zufälligen Datenpunkt und schaut, ob es in einem Umkreis von Epsilon einen weiteren Punkt gibt. Angenommen er findet zwei weitere Datenpunkte, dann führen diese dasselbe erneut durch, bis er von allen Punkten aus, keinen Punkt mehr in einem Umkreis von Epsilon finden kann. Somit ist ein erstes Cluster gefunden.'
-'2.	Mit den noch nicht zugeordneten Datenpunkten wird nun das Selbe durchführt bis alle Cluster gefunden sind. Es bleiben unter Umständen noch Punkte übrig, die keinem Cluster zugeordnet werden können, weil ihre Gruppe von verbundenen Punkten weniger Punkte als min_samples enthält.'
+'2.	Mit den noch nicht zugeordneten Datenpunkten wird nun dasselbe durchführt bis alle Cluster gefunden sind. Es bleiben unter Umständen noch Punkte übrig, die keinem Cluster zugeordnet werden können, weil ihre Gruppe von verbundenen Punkten weniger Punkte als min_samples enthält.'
 st.image('pictures/theory pictures/Abbildung2.png')
 st.caption('Abbildung 2: Datenpunkte (schwarz, links) auf welche der DBSCAN-Algorithmus angewendet wird. Es entstehen Cluster (farbig) und Noisepunkte (schwarz, rechts)')
+'Etwas nachvollziehbarer wird der DBSCAN-Algoritmus, wenn man sich Schritt für Schritt anschaut, wie der Algorithmus vorgeht.'
+st.title('Veranschaulichung des DBSCAN-Algorithmus')
+
+col1, col2 = st.columns(2,gap="large")
+
+with col1:
+   st.header("adding points")
+   st.image('pictures/visualizing clustering process/1.png',width = 380)
+   st.caption('1')
+   st.image('pictures/visualizing clustering process/3.png',width = 350)
+   st.caption('3')
+   st.image('pictures/visualizing clustering process/5.png',width = 350)
+   st.caption('5')
+   st.image('pictures/visualizing clustering process/7.png',width = 350)
+   st.caption('7')
+   st.image('pictures/visualizing clustering process/9.png',width = 350)
+   st.caption('9')
+
+with col2:
+   st.header("clustering")
+   st.image('pictures/visualizing clustering process/2.png',width = 350)
+   st.caption('2')
+   st.image('pictures/visualizing clustering process/4.png',width = 350)
+   st.caption('4')
+   st.image('pictures/visualizing clustering process/6.png',width = 350)
+   st.caption('6')
+   st.image('pictures/visualizing clustering process/8.png',width = 350)
+   st.caption('8')
+   st.image('pictures/visualizing clustering process/10.png',width = 350)
+   st.caption('10')
+
 st.header('Ergebnisse')
+
+#################################### Clustering without TimeDimension with UberData ###################################
+
 # loading data set
 df = pd.read_csv('data/uber.csv')
 
@@ -122,33 +157,48 @@ st_folium(
     width=700,
 )
 
-'Mit den beiden Parametern Epsilon = 0.0093 und min_samples = 100 wurden durch den DBSCAN-Algorithmus vier Cluster generiert (rot, pink, grün, blau). Weiter gibt es einige noise-Punkte (schwarz), die keinem Cluster zugeordnet werden können. Bei den Clustern können dichte Punkteansammlungen festgestellt werden, während die noise-Punkte mehrheitlich einzeln zu finden sind.'
-'Mit dem verändern der Parameter, könnte man nun auch noch einige dieser noise-Punkte zu Clustern hinzufügen z.B. durch Vergrösserung von Epsilon. Dabei besteht aber wiederum die Gefahr, dass die Anzahl der Cluster kleiner wird und wenige grosse Cluster generiert würden, was nicht sehr sinnvoll ist. Eine Möglichkeit mehr Cluster zu erhalten, wäre eine Verkleinerung des Parameters min_samples. Dabei besteht aber wiederum die Gefahr von sehr vielen, kleinen Cluster und dies ist wiederum auch nicht sinnvoll.'
-'Schlussendlich ist es also nicht einfach die Parameter Epsilon und min_samples so zu optimieren, um eine optimale Clusterperformance zu erhalten (nicht wenige grosse Cluster, nicht viele kleine Cluster und sinnvolles zuordnen von noise-Punkten)'
+'Mit den beiden Parametern Epsilon = 0.0093 und min_samples = 100 wurden durch den DBSCAN-Algorithmus vier Cluster generiert (rot, pink, grün, blau). Weiter gibt es einige noise-Punkte (schwarz), die keinem Cluster zugeordnet werden können. Bei den Clustern können dichte Punkteansammlungen festgestellt werden, während die noise-Punkte mehrheitlich einzeln zu finden sind. Mit den Schiebereglern oberhalb der Karte ist es möglich auszutesten, welchen Einfluss die Parameter Epsilon und min_samples haben.'
+'Es ist nicht einfach, die Parameter Epsilon und min_samples so zu optimieren, um eine optimale Clusterperformance zu erhalten. Eine optimale Clusterperformance wird erreicht, wenn der Algorithmus in der Lage ist, eine hohe Anzahl an "richtigen" Clustern zu identifizieren, wobei "richtig" bedeutet, dass die Datenpunkte innerhalb eines Clusters eng miteinander verbunden sind und dass die Cluster sich klar voneinander unterscheiden. Gleichzeitig sollten möglichst wenige "falsche" Cluster erzeugt werden, d.h. Cluster, die entweder zu wenige Datenpunkte enthalten oder die inhaltlich zu unterschiedlich sind.'
+'Der Einfluss der gegebenen Parameter für den Algorithmus wird mithilfe der unteren Ausgabe noch etwas nachvollziehbarer'
 
+##################################################### Interactive Matplotlib Output ########################################
 
-
-st.title('Veranschaulichung des DBSCAN-Algorithmus')
-
-col1, col2 = st.columns(2,gap="large")
-
+# placing the 2 inputs and the button in three columns
+col1, col2, col3 = st.columns(3)
 with col1:
-   st.header("adding points")
-   st.image('pictures/visualizing clustering process/1.png',width = 380)
-   st.image('pictures/visualizing clustering process/3.png',width = 350)
-   st.image('pictures/visualizing clustering process/5.png',width = 350)
-   st.image('pictures/visualizing clustering process/7.png',width = 350)
-   st.image('pictures/visualizing clustering process/9.png',width = 350)
-
+    # input for epsilon
+    epsilon = st.number_input('Geben Sie ein Epsilon für den DBSCAN-Algorithmus an!',min_value=0.01, max_value=1.00, value=0.01)
 with col2:
-   st.header("clustering")
-   st.image('pictures/visualizing clustering process/2.png',width = 350)
-   st.image('pictures/visualizing clustering process/4.png',width = 350)
-   st.image('pictures/visualizing clustering process/6.png',width = 350)
-   st.image('pictures/visualizing clustering process/8.png',width = 350)
-   st.image('pictures/visualizing clustering process/10.png',width = 350)
+    # input for min_samples
+    min_samples = st.number_input('Wie viele Punkte soll ein Cluster mindestens enthalten?', min_value=1, max_value=100, value=1)
+with col3:
+    # calculation button to execute the calculation with the two previous inputs
+    calculate_button = st.button('Calculate')
 
+# getting always the same 100 random numbers
+np.random.seed(0)
 
+# generating data (100 random coordinates points between 0 and 1)
+data = np.random.rand(100, 2)
+# putting them into a dataframe
+df = pd.DataFrame(data, columns=['x_coordinate', 'y_coordinate'])
+
+# cluster the 100 points
+clusters = DBSCAN(eps = epsilon, min_samples = min_samples).fit(df)
+# visualizing the clusters
+fig = sns.scatterplot(data = df, x = "x_coordinate", y = "y_coordinate", hue = clusters.labels_, legend = "full", palette = "deep")
+
+# connecting the cluster plot with a button
+if calculate_button:
+    plt.clf()
+    clusters = DBSCAN(eps=epsilon, min_samples=min_samples).fit(df)
+    fig = sns.scatterplot(data=df, x="x_coordinate", y="y_coordinate", hue=clusters.labels_, legend="full", palette="deep")
+    sns.move_legend(fig, "upper right", title = 'Clusters')
+    plt.savefig("plot.png")
+    st.image("plot.png")
+
+#################################### Clustering with TimeDimension with UberData ###################################
+st.header('Hinzufügen einer zeitlichen Dimension')
 # Load the Uber dataset
 df2 = pd.read_csv('data/uber.csv')
 
@@ -254,3 +304,4 @@ st_folium(
     height=400,
     width=700,
 )
+'Neben den Clusterergebnissen auf der 2D-Karte gibt es hier noch eine weitere Dimension, aufgrund welcher geclustert wird. Mit dem Schieberegler oberhalb der Karte kann eine der 24 Stunden aller Tage, die in diesem Datenset sind, ausgewählt werden und darauf basierend wird dann wieder neu geclustert. Das heisst, die Cluster entstehen nicht mehr nur aufgrund der räumlichen Nähe, sondern auch aufgrund der zeitlichen Nähe (gleiche Stunde) der Punkte. Man erkennt z.B. dass um ein Uhr nachts am Flughafen von New York kein Cluster gebildet wurde. Um 17 Uhr dafür schon, weil dann mehr Leute am Flughafen ankommen und einen Uber brauchen. '
