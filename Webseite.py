@@ -302,7 +302,7 @@ m = folium.Map()
 m.fit_bounds([(40.893895, -74.045570),(40.588878, -73.679881)])
 
 # allow the user to select the hour to display
-hour = st.slider("hours",1,24,1,1)
+hour = st.slider("hours",1,24,14,1)
 
 # add markers for each cluster and noise point
 # iterate through all the clusters existing in the chosen hour
@@ -311,7 +311,7 @@ for i in range(len(clustered_hourly_dataframes[hour-1])-1):
     latitudestring = f'hour_{hour-1}_pickup_latitude_cluster_{i+1}'  # create string with current number
     color = next(color_iterator)  # get the next color in the sequence
     for _, row in clustered_hourly_dataframes[hour-1][i].head(20).iterrows():
-        if latitudestring in row:
+        if latitudestring in row: # test if there are clusters in the current hour of the day if not it will skip placing the markers
             folium.Marker(location=[row[latitudestring], row[longitudestring]], icon=folium.Icon(color=color)).add_to(m)  
     for i,row in clustered_hourly_dataframes[hour-1][-1].head(20).iterrows():
         # add each row to the map
